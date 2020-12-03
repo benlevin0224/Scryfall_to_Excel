@@ -13,35 +13,35 @@ f = open(filename, "w")
 
 page_num = 1
 serviceurl = "https://api.scryfall.com/cards/search?&page=%s\&q=" % page_num
-card_type = 'merfolk' #input('Enter card type here. All lower case. ')
-cmdr = 'WUBRG' #input("Enter commander's colors, WUBRG format. ")
+card_type = input("Enter card type here. All lower case. ")
+cmdr = input("Enter commander's colors, WUBRG format. ")
 
 url = serviceurl + "type%%3A%s" % card_type + "+" + "id%%3A%s" % cmdr
-print('Retrieving', url)
+print("Retrieving", url)
 uh = urllib.request.urlopen(url, context=ctx)
 data = uh.read().decode()
 js = json.loads(data)
-has_more = js['has_more']
+has_more = js["has_more"]
 count = 0
 while has_more is True:
     for cards in range(175):
-        name = js['data'][count]['name']
+        name = js["data"][count]["name"]
         count += 1
         f.write(name+"\n")
-        sleep(0.1)
+        sleep(0.075)
     page_num += 1
     serviceurl = "https://api.scryfall.com/cards/search?&page=%s\&q=" % page_num
     url = serviceurl + "type%%3A%s" % card_type + "+" + "id%%3A%s" % cmdr
     uh = urllib.request.urlopen(url, context=ctx)
     data = uh.read().decode()
     js = json.loads(data)
-    has_more = js['has_more']
+    has_more = js["has_more"]
 else:
     count = 0
-    for cards in range(js['total_cards']-175):
-        name = js['data'][count]['name']
+    for cards in range(js["total_cards"]-175):
+        name = js["data"][count]["name"]
         count += 1
         f.write(name+"\n")
-        sleep(0.1)
+        sleep(0.075)
 
 f.close()
