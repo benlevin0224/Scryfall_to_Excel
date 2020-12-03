@@ -13,8 +13,8 @@ f = open(filename, "w")
 
 page_num = 1
 serviceurl = "https://api.scryfall.com/cards/search?&page=%s\&q=" % page_num
-card_type = input("Enter card type here. All lower case. ")
-cmdr = input("Enter commander's colors, WUBRG format. ")
+card_type = "instant"#input("Enter card type here. All lower case. ")
+cmdr = 'U'#input("Enter commander's colors, WUBRG format. ")
 
 url = serviceurl + "type%%3A%s" % card_type + "+" + "id%%3A%s" % cmdr
 print("Retrieving", url)
@@ -22,8 +22,9 @@ uh = urllib.request.urlopen(url, context=ctx)
 data = uh.read().decode()
 js = json.loads(data)
 has_more = js["has_more"]
-count = 0
+loop_count = 0
 while has_more is True:
+    count = 0
     for cards in range(175):
         name = js["data"][count]["name"]
         count += 1
@@ -36,12 +37,16 @@ while has_more is True:
     data = uh.read().decode()
     js = json.loads(data)
     has_more = js["has_more"]
+    loop_count += 1
 else:
-    count = 0
-    for cards in range(js["total_cards"]-175):
-        name = js["data"][count]["name"]
-        count += 1
-        f.write(name+"\n")
-        sleep(0.075)
+    try:
+        count = 0
+        for cards in range(js["total_cards"]-175):
+            name = js["data"][count]["name"]
+            count += 1
+            f.write(name+"\n")
+            sleep(0.075)
+    except:
+        pass
 
 f.close()
