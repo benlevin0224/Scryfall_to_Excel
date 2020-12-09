@@ -26,7 +26,7 @@ data = uh.read().decode()
 js = json.loads(data)
 has_more = js["has_more"]
 
-headers = ["nama","mana","oracle text"]
+headers = ["name","mana","oracle text"]
 for col_num, data in enumerate(headers):
     worksheet.write(0, col_num, data)
 
