@@ -17,7 +17,7 @@ worksheet = workbook.add_worksheet()
 page_num = 1
 serviceurl = "https://api.scryfall.com/cards/search?&page=%s\&q=" % page_num
 card_type = input("Enter card type here. All lower case. ")
-cmdr = input("Enter commander"s colors, WUBRG format. ")
+cmdr = input("Enter commander's colors, WUBRG format. ")
 
 url = serviceurl + "type%%3A%s" % card_type + "+" + "id%%3A%s" % cmdr
 print("Retrieving", url)
