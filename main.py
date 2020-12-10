@@ -76,7 +76,7 @@ while has_more is True:
 else:
     count = 0
     for cards in range((js["total_cards"]-(175*(page_num-1)))):
-        try: #Need to fix for more than 1 page
+        try: 
             name = js["data"][count]["name"]
             mana = js["data"][count]["mana_cost"]
             oracle_text = js["data"][count]["oracle_text"]
