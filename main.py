@@ -18,9 +18,7 @@ headers = ["name", "mana", "oracle text"]
 for col_num, data in enumerate(headers):
     worksheet.write(0, col_num, data)
 
-column = 0
 row = 1
-
 while True:
     count = 0
     print("Retrieving URL: " + url)
