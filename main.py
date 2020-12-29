@@ -2,59 +2,64 @@ from time import sleep
 import xlsxwriter
 import requests
 
-# to create and write to CSV file
-file_name = input("enter your file name here. ") + ".xlsx"
-workbook = xlsxwriter.Workbook(file_name)
-worksheet = workbook.add_worksheet()
 
-serviceurl = "https://api.scryfall.com/cards/search?&page=1&q="
+def single_sided_cards(counts, rows):
+    lst = [(js["data"][counts]["name"]),
+           (js["data"][counts]["mana_cost"]),
+           (js["data"][counts]["oracle_text"])]
+    for column, value in enumerate(lst):
+        worksheet.write(rows, column, value)
+        sleep(.1)
+
+
+def double_sided_cards(counts, rows, card_sides):
+    lst = [
+        (js["data"][counts]["card_faces"][card_sides]["name"]),
+        (js["data"][counts]["card_faces"][card_sides]["mana_cost"]),
+        (js["data"][counts]["card_faces"][card_sides]["oracle_text"])
+    ]
+    for column, value in enumerate(lst):
+        worksheet.write(rows, column, value)
+        sleep(.1)
+
+
+
+file_name = input("enter your file name here. ") + ".xlsx"
 card_type = input("Enter card type here. All lower case. ")
 cmdr = input("Enter commander's colors, WUBRG format. ")
-url = serviceurl + "type%%3A%s" % card_type + "+" + "id%%3A%s" % cmdr
-response = requests.get(url)
-js = response.json()
 
-headers = ["name", "mana", "oracle text"]
-for col_num, data in enumerate(headers):
-    worksheet.write(0, col_num, data)
+serviceurl = "https://api.scryfall.com/cards/search?&page=1&q="
+url = f"{serviceurl}+type%3A{card_type}+id%3A{cmdr}"
 
-row = 1
-while True:
-    count = 0
-    print("Retrieving URL: " + url)
-    for cards in range(len(js["data"])):
-        try:
-            lst = [
-                (js["data"][count]["name"]),
-                (js["data"][count]["mana_cost"]),
-                (js["data"][count]["oracle_text"])
-            ]
-            for column, value in enumerate(lst):
-                worksheet.write(row, column, value)
-            row += 1
-            count += 1
-            sleep(0.1)
-        except KeyError:
-            column = 0
-            worksheet.write(row, column, js["data"][count]["name"])
-            row += 1
-            card_side = 0
-            for card_side in range(2):
-                lst = [
-                    (js["data"][count]["card_faces"][card_side]["name"]),
-                    (js["data"][count]["card_faces"][card_side]["mana_cost"]),
-                    (js["data"][count]["card_faces"][card_side]["oracle_text"])
-                ]
-                for column, value in enumerate(lst):
-                    worksheet.write(row, column, value)
-                    card_side += 1
-                row += 1
-            count += 1
-    try:
-        url = js["next_page"]
+# context manager to remove the close() statement
+with xlsxwriter.Workbook(file_name) as workbook:
+    worksheet = workbook.add_worksheet()
+    headers = ["name", "mana", "oracle text"]
+    for col_num, data in enumerate(headers):
+        worksheet.write(0, col_num, data)
+
+    row = 1
+    while True:  # This is for single faced cards
+        count = 0
         response = requests.get(url)
         js = response.json()
-    except KeyError:
-        break
+        print("Retrieving URL: " + url)
+        for single_sided in range(len(js["data"])):
+            try:  # This is for single sided cards
+                single_sided_cards(count, row)
+                row += 1
+            except KeyError:  # This is for double-faced cards
+                card_side = 0
+                worksheet.write(row, 0, js["data"][count]["name"])  # The 0 is column number
+                row += 1
+                for double_sided in range(2):
+                    double_sided_cards(count, row, card_side)
+                    row += 1
+                    card_side += 1
+            count += 1
+
+        if "next_page" in js:
+            url = js["next_page"]
+        else:
+            break
 print("Finished exporting")
-workbook.close()
