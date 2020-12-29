@@ -39,16 +39,16 @@ with xlsxwriter.Workbook(file_name) as workbook:
         worksheet.write(0, col_num, data)
 
     row = 1
-    while True:  # This is for single faced cards
+    while True:
         count = 0
         response = requests.get(url)
         js = response.json()
         print("Retrieving URL: " + url)
         for single_sided in range(len(js["data"])):
-            try:  # This is for single sided cards
+            try:
                 single_sided_cards(count, row)
                 row += 1
-            except KeyError:  # This is for double-faced cards
+            except KeyError:
                 card_side = 0
                 worksheet.write(row, 0, js["data"][count]["name"])  # The 0 is column number
                 row += 1
